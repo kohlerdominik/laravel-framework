@@ -14,6 +14,11 @@ return [
     |
     */
 
+    'acs' => [
+        'key' => env('AZURE_COMMUNICATION_KEY'),
+        'endpoint' => env('AZURE_COMMUNICATION_ENDPOINT'),
+    ],
+
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),
     ],

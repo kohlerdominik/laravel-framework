@@ -8,6 +8,8 @@ use Closure;
 use Illuminate\Contracts\Mail\Factory as FactoryContract;
 use Illuminate\Log\LogManager;
 use Illuminate\Mail\Transport\ArrayTransport;
+use Illuminate\Mail\Transport\AzureTransport;
+use Illuminate\Mail\Transport\CloudflareTransport;
 use Illuminate\Mail\Transport\LogTransport;
 use Illuminate\Mail\Transport\ResendTransport;
 use Illuminate\Mail\Transport\SesTransport;
@@ -318,6 +320,42 @@ class MailManager implements FactoryContract
     {
         return new ResendTransport(
             Resend::client($config['key'] ?? $this->app['config']->get('services.resend.key')),
+        );
+    }
+
+    /**
+     * Create an instance of the Azure Communication Services Transport driver.
+     *
+     * @param  array  $config
+     * @return \Illuminate\Mail\Transport\AzureTransport
+     */
+    protected function createAcsTransport(array $config)
+    {
+        return new AzureTransport(
+            $config['key'] ?? $this->app['config']->get('services.acs.key'),
+            $config['endpoint'] ?? $this->app['config']->get('services.acs.endpoint'),
+            $config['disable_tracking'] ?? false,
+            $config['api_version'] ?? '2023-03-31',
+            $this->getHttpClient($config),
+        );
+    }
+
+    /**
+     * Create an instance of the Cloudflare Transport driver.
+     *
+     * @param  array  $config
+     * @return \Illuminate\Mail\Transport\CloudflareTransport
+     */
+    protected function createCloudflareTransport(array $config)
+    {
+        return new CloudflareTransport(
+            $config['account_id'] ??
+                $this->app['config']->get('services.cloudflare.account_id'),
+            $config['token'] ??
+                $config['key'] ??
+                $this->app['config']->get('services.cloudflare.token') ??
+                $this->app['config']->get('services.cloudflare.key'),
+            $this->getHttpClient($config),
         );
     }
 
